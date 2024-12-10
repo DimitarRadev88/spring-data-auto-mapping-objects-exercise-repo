@@ -1,9 +1,6 @@
 package bg.softuni.gameStore.services.interfaces;
 
-import bg.softuni.gameStore.dtos.UserLogInDto;
-import bg.softuni.gameStore.dtos.UserLoggedInDto;
-import bg.softuni.gameStore.dtos.UserRegistrationDto;
-import bg.softuni.gameStore.dtos.UserWithFullNameDto;
+import bg.softuni.gameStore.dtos.*;
 
 public interface UserService {
 
@@ -14,4 +11,6 @@ public interface UserService {
     UserWithFullNameDto logOut();
 
     UserLoggedInDto getLoggedInUser();
+
+    UserOwnedGamesDto getUserWithOwnedGames();
 }

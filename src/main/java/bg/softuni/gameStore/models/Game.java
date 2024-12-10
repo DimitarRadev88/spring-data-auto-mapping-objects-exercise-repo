@@ -1,9 +1,6 @@
 package bg.softuni.gameStore.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -86,7 +83,9 @@ public class Game extends BaseEntity {
         this.releaseDate = releaseDate;
     }
 
-    @ManyToMany(mappedBy = "games")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @JoinTable(name = "users_games", joinColumns = @JoinColumn(name = "game_id")
+            , inverseJoinColumns = @JoinColumn(name = "user_id"))
     public List<User> getUsers() {
         return users;
     }
@@ -95,7 +94,10 @@ public class Game extends BaseEntity {
         this.users = users;
     }
 
-    @ManyToMany(mappedBy = "products")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @JoinTable(name = "orders_games",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(name = "order_id"))
     public List<Order> getOrders() {
         return orders;
     }

@@ -1,9 +1,6 @@
 package bg.softuni.gameStore.services;
 
-import bg.softuni.gameStore.dtos.UserLogInDto;
-import bg.softuni.gameStore.dtos.UserLoggedInDto;
-import bg.softuni.gameStore.dtos.UserRegistrationDto;
-import bg.softuni.gameStore.dtos.UserWithFullNameDto;
+import bg.softuni.gameStore.dtos.*;
 import bg.softuni.gameStore.models.User;
 import bg.softuni.gameStore.repositories.UserRepository;
 import bg.softuni.gameStore.services.interfaces.UserService;
@@ -114,6 +111,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("No user is logged in!");
         }
         return modelMapper.map(user.get(), UserLoggedInDto.class);
+    }
+
+    @Override
+    public UserOwnedGamesDto getUserWithOwnedGames() {
+        Optional<User> user = userRepository.findOneByLoggedInTrue();
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("You have to be logged in to view owned games!");
+        }
+
+        return modelMapper.map(user.get(), UserOwnedGamesDto.class);
     }
 
 }

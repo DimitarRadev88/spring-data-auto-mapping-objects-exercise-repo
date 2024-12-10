@@ -48,7 +48,7 @@ public class CommandParserImpl implements CommandParser {
                 case PurchaseGame -> commandExecutioner.execute(new PurchaseGameCommand(userService, gameService, orderService));
                 case AllGames -> commandExecutioner.execute(new AllGamesCommand(gameService));
                 case DetailGame -> commandExecutioner.execute(new DetailGameCommand(gameService));
-                default -> throw new IllegalStateException("Unexpected value: " + command);
+                case OwnedGames -> commandExecutioner.execute(new OwnedGamesCommand(userService));
             };
             System.out.println(message);
         } catch (IllegalArgumentException | IllegalStateException | IllegalCallerException e) {

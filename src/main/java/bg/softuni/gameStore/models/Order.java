@@ -20,7 +20,7 @@ public class Order extends BaseEntity {
         this.buyer = buyer;
     }
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "orders_games",
     joinColumns = @JoinColumn(name = "order_id"),
     inverseJoinColumns = @JoinColumn(name = "game_id"))

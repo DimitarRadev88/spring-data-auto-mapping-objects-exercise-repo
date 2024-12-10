@@ -3,6 +3,7 @@ package bg.softuni.gameStore.config;
 import bg.softuni.gameStore.dtos.GameAddDto;
 import bg.softuni.gameStore.dtos.GameEditDto;
 import bg.softuni.gameStore.dtos.PurchaseOrderDto;
+import bg.softuni.gameStore.dtos.UserOwnedGamesDto;
 import bg.softuni.gameStore.models.Game;
 import bg.softuni.gameStore.models.Order;
 import bg.softuni.gameStore.models.User;
@@ -17,7 +18,6 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 public class ApplicationBeanConfiguration {
@@ -40,18 +40,30 @@ public class ApplicationBeanConfiguration {
         gameAddDtoToGameTypeMap();
         gameEditDtoToGameTypeMap();
         orderToPurchaseOrderDtoTypeMap();
+        UserToUserOwnedGamesDtoTypeMap();
+    }
+
+    private void UserToUserOwnedGamesDtoTypeMap() {
+        TypeMap<User, UserOwnedGamesDto> typeMap = modelMapper.createTypeMap(User.class, UserOwnedGamesDto.class);
+
+        typeMap
+                .addMappings(mapper -> mapper.using(getGameConverter()).map(User::getGames, UserOwnedGamesDto::setGames));
+
     }
 
     private void orderToPurchaseOrderDtoTypeMap() {
         TypeMap<Order, PurchaseOrderDto> typeMap = modelMapper.createTypeMap(Order.class, PurchaseOrderDto.class);
 
         Converter<User, String> userConverter = c -> c.getSource() == null ? null : c.getSource().getFullName();
-        Converter<List<Game>, List<String>> gameConverter = c -> c.getSource() == null ? null : c.getSource().stream().map(Game::getTitle).toList();
 
         typeMap.addMappings(mapper -> {
             mapper.using(userConverter).map(Order::getBuyer, PurchaseOrderDto::setBuyer);
-            mapper.using(gameConverter).map(Order::getProducts, PurchaseOrderDto::setProducts);
+            mapper.using(getGameConverter()).map(Order::getProducts, PurchaseOrderDto::setProducts);
         });
+    }
+
+    private static Converter<List<Game>, List<String>> getGameConverter() {
+        return c -> c.getSource() == null ? null : c.getSource().stream().map(Game::getTitle).toList();
     }
 
     private static void stringToLocalDateTypeMap() {
