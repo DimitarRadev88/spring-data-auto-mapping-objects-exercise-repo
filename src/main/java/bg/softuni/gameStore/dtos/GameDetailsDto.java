@@ -1,15 +1,10 @@
 package bg.softuni.gameStore.dtos;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public class GameAddDto {
-
+public class GameDetailsDto {
     private String title;
     private BigDecimal price;
-    private Double size;
-    private String trailer;
-    private String thumbnailUrl;
     private String description;
     private String releaseDate;
 
@@ -29,30 +24,6 @@ public class GameAddDto {
         this.price = price;
     }
 
-    public Double getSize() {
-        return size;
-    }
-
-    public void setSize(Double size) {
-        this.size = size;
-    }
-
-    public String getTrailer() {
-        return trailer;
-    }
-
-    public void setTrailer(String trailer) {
-        this.trailer = trailer;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -67,5 +38,19 @@ public class GameAddDto {
 
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("""
+                Title: %s
+                Price: %s
+                Description: %s
+                Release date: %s
+                """,
+                title,
+                price,
+                description,
+                releaseDate);
     }
 }

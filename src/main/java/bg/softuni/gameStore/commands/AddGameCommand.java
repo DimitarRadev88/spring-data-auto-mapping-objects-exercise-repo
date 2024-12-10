@@ -9,12 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Component
-public class AddGameCommand implements Command {
-    private String[] commandData;
+public class AddGameCommand extends CommandImpl {
     private final GameService gameService;
     private final UserService userService;
 
@@ -25,40 +22,24 @@ public class AddGameCommand implements Command {
     }
 
     @Override
-    public void execute() {
-        UserLoggedInDto user;
-        try {
-            user = userService.getLoggedInUser();
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
+    public String execute() {
+        UserLoggedInDto user = userService.getLoggedInUser();
 
         if (!user.getAdministrator()) {
-            System.out.println("Only administrators can add games");
-            return;
+            throw new IllegalCallerException("Only administrators can add games!");
         }
 
         GameAddDto dto = new GameAddDto();
-        dto.setTitle(commandData[0]);
-        dto.setPrice(new BigDecimal(commandData[1]));
-        dto.setSize(Double.parseDouble(commandData[2]));
-        dto.setTrailer(commandData[3]);
-        dto.setThumbnailUrl(commandData[4]);
-        dto.setDescription(commandData[5]);
-        dto.setReleaseDate(LocalDate.parse(commandData[6], DateTimeFormatter.ofPattern("dd-MM-yyyy")));
+        dto.setTitle(getCommandData()[0]);
+        dto.setPrice(new BigDecimal(getCommandData()[1]));
+        dto.setSize(Double.parseDouble(getCommandData()[2]));
+        dto.setTrailer(getCommandData()[3]);
+        dto.setThumbnailUrl(getCommandData()[4]);
+        dto.setDescription(getCommandData()[5]);
+        dto.setReleaseDate(getCommandData()[6]);
 
-        try {
-            GameWithTitleDto game = gameService.addGame(dto);
-            System.out.println("Added " + game.getTitle());
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-
+        GameWithTitleDto game = gameService.addGame(dto);
+        return "Added " + game.getTitle();
     }
 
-    @Override
-    public void setData(String[] data) {
-        this.commandData = data;
-    }
 }

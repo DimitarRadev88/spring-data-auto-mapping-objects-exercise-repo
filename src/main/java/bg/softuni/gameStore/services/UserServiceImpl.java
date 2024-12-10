@@ -95,13 +95,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserWithFullNameDto logOut() {
-        Optional<User> user = userRepository.findOneByLoggedInTrue();
-        if (user.isEmpty()) {
+        Optional<User> optionalUser = userRepository.findOneByLoggedInTrue();
+        if (optionalUser.isEmpty()) {
             throw new IllegalArgumentException("Cannot log out. No user was logged in.");
         }
 
+        User user = optionalUser.get();
+        user.setLoggedIn(false);
+        userRepository.save(user);
 
-        return modelMapper.map(user.get(), UserWithFullNameDto.class);
+        return modelMapper.map(user, UserWithFullNameDto.class);
     }
 
     @Override

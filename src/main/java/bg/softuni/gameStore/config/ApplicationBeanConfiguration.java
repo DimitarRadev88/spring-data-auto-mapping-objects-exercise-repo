@@ -1,8 +1,10 @@
 package bg.softuni.gameStore.config;
 
 import bg.softuni.gameStore.dtos.GameAddDto;
-import bg.softuni.gameStore.dtos.UserLogInDto;
+import bg.softuni.gameStore.dtos.GameEditDto;
+import bg.softuni.gameStore.dtos.PurchaseOrderDto;
 import bg.softuni.gameStore.models.Game;
+import bg.softuni.gameStore.models.Order;
 import bg.softuni.gameStore.models.User;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
@@ -12,6 +14,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 public class ApplicationBeanConfiguration {
@@ -30,13 +36,59 @@ public class ApplicationBeanConfiguration {
     }
 
     private void addMappings() {
+        stringToLocalDateTypeMap();
+        gameAddDtoToGameTypeMap();
+        gameEditDtoToGameTypeMap();
+        orderToPurchaseOrderDtoTypeMap();
+    }
+
+    private void orderToPurchaseOrderDtoTypeMap() {
+        TypeMap<Order, PurchaseOrderDto> typeMap = modelMapper.createTypeMap(Order.class, PurchaseOrderDto.class);
+
+        Converter<User, String> userConverter = c -> c.getSource() == null ? null : c.getSource().getFullName();
+        Converter<List<Game>, List<String>> gameConverter = c -> c.getSource() == null ? null : c.getSource().stream().map(Game::getTitle).toList();
+
+        typeMap.addMappings(mapper -> {
+            mapper.using(userConverter).map(Order::getBuyer, PurchaseOrderDto::setBuyer);
+            mapper.using(gameConverter).map(Order::getProducts, PurchaseOrderDto::setProducts);
+        });
+    }
+
+    private static void stringToLocalDateTypeMap() {
+        TypeMap<String, LocalDate> typeMap = modelMapper.createTypeMap(String.class, LocalDate.class);
+
+        typeMap.setConverter(getDateConverter("yyyy-MM-dd"));
+    }
+
+    private void gameEditDtoToGameTypeMap() {
+        TypeMap<GameEditDto, Game> typeMap = modelMapper.createTypeMap(GameEditDto.class, Game.class);
+
+        typeMap.addMappings(mapper -> {
+            mapper.using(getTrailerConverter()).map(GameEditDto::getTrailer, Game::setTrailerId);
+        });
+    }
+
+    private static void gameAddDtoToGameTypeMap() {
         TypeMap<GameAddDto, Game> typeMap = modelMapper.createTypeMap(GameAddDto.class, Game.class);
 
-        Converter<String, String> trailerConverter = c -> c.getSource().length() != 11 ?
-                c.getSource().replace( "https://www.youtube.com/watch?v=", "") :
+        typeMap.addMappings(mapper -> {
+            mapper.using(getTrailerConverter()).map(GameAddDto::getTrailer, Game::setTrailerId);
+            mapper.using(getDateConverter("dd-MM-yyyy")).map(GameAddDto::getReleaseDate, Game::setReleaseDate);
+        });
+    }
+
+    private static Converter<String, String> getTrailerConverter() {
+        return c -> c.getSource().length() != 11 ?
+                c.getSource().replace("https://www.youtube.com/watch?v=", "") :
                 c.getSource();
 
-        typeMap.addMappings(mapper -> mapper.using(trailerConverter).map(GameAddDto::getTrailer, Game::setTrailerId));
+    }
+
+    private static Converter<String, LocalDate> getDateConverter(String pattern) {
+        return c -> c.getSource() == null ?
+                null :
+                LocalDate.parse(c.getSource(), DateTimeFormatter.ofPattern(pattern));
+
     }
 
 

@@ -6,6 +6,6 @@ public interface CommandExecutioner {
 
     void add(String[] data);
 
-    void execute(Command command);
+    String execute(Command command);
 
 }

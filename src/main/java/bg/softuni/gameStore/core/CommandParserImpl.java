@@ -1,9 +1,6 @@
 package bg.softuni.gameStore.core;
 
-import bg.softuni.gameStore.commands.AddGameCommand;
-import bg.softuni.gameStore.commands.LogInUserCommand;
-import bg.softuni.gameStore.commands.LogoutCommand;
-import bg.softuni.gameStore.commands.RegisterUserCommand;
+import bg.softuni.gameStore.commands.*;
 import bg.softuni.gameStore.enums.CommandType;
 import bg.softuni.gameStore.services.interfaces.GameService;
 import bg.softuni.gameStore.services.interfaces.OrderService;
@@ -11,7 +8,6 @@ import bg.softuni.gameStore.services.interfaces.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.naming.OperationNotSupportedException;
 import java.util.Arrays;
 
 @Component
@@ -30,7 +26,7 @@ public class CommandParserImpl implements CommandParser {
     }
 
     @Override
-    public void parse(String input) throws OperationNotSupportedException {
+    public void parse(String input) {
         String[] parts = input.split("\\|");
 
         CommandType command = CommandType.valueOf(parts[0]);
@@ -41,12 +37,24 @@ public class CommandParserImpl implements CommandParser {
             commandExecutioner.add(data);
         }
 
-        switch (command) {
-            case RegisterUser -> commandExecutioner.execute(new RegisterUserCommand(userService));
-            case LoginUser -> commandExecutioner.execute(new LogInUserCommand(userService));
-            case Logout -> commandExecutioner.execute(new LogoutCommand(userService));
-            case AddGame -> commandExecutioner.execute(new AddGameCommand(gameService, userService));
+        try {
+            String message = switch (command) {
+                case RegisterUser -> commandExecutioner.execute(new RegisterUserCommand(userService));
+                case LoginUser -> commandExecutioner.execute(new LogInUserCommand(userService));
+                case Logout -> commandExecutioner.execute(new LogoutCommand(userService));
+                case AddGame -> commandExecutioner.execute(new AddGameCommand(gameService, userService));
+                case EditGame -> commandExecutioner.execute(new EditGameCommand(gameService, userService));
+                case DeleteGame -> commandExecutioner.execute(new DeleteGameCommand(gameService, userService));
+                case PurchaseGame -> commandExecutioner.execute(new PurchaseGameCommand(userService, gameService, orderService));
+                case AllGames -> commandExecutioner.execute(new AllGamesCommand(gameService));
+                case DetailGame -> commandExecutioner.execute(new DetailGameCommand(gameService));
+                default -> throw new IllegalStateException("Unexpected value: " + command);
+            };
+            System.out.println(message);
+        } catch (IllegalArgumentException | IllegalStateException | IllegalCallerException e) {
+            System.out.println(e.getMessage());
         }
+
 
     }
 

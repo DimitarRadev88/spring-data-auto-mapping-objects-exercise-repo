@@ -7,6 +7,8 @@ public enum CommandType {
     AddGame,
     EditGame,
     DeleteGame,
+    PurchaseGame,
     AllGames,
-    DetailsGame
+    DetailGame,
+    OwnedGames
 }

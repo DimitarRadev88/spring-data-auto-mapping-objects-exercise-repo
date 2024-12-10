@@ -6,10 +6,9 @@ import bg.softuni.gameStore.services.interfaces.UserService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RegisterUserCommand implements Command {
-    private static final String REGISTERED_MESSAGE = "%s was registered%n";
+public class RegisterUserCommand extends CommandImpl {
+    private static final String REGISTERED_MESSAGE = "%s was registered";
     private final UserService userService;
-    private String[] commandData;
 
     public RegisterUserCommand(UserService userService) {
         this.userService = userService;
@@ -17,29 +16,21 @@ public class RegisterUserCommand implements Command {
 
 
     @Override
-    public void execute() {
+    public String execute() {
         UserRegistrationDto dto = new UserRegistrationDto();
 
-        String email = commandData[0];
-        String password = commandData[1];
-        String confirmPassword = commandData[2];
-        String fullName = commandData[3];
+        String email = getCommandData()[0];
+        String password = getCommandData()[1];
+        String confirmPassword = getCommandData()[2];
+        String fullName = getCommandData()[3];
 
         dto.setEmail(email);
         dto.setPassword(password);
         dto.setConfirmPassword(confirmPassword);
         dto.setFullName(fullName);
 
-        try {
-            UserWithFullNameDto registered = userService.register(dto);
-            System.out.printf(REGISTERED_MESSAGE, registered.getFullName());
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
+        UserWithFullNameDto registered = userService.register(dto);
+        return String.format(REGISTERED_MESSAGE, registered.getFullName());
     }
 
-    @Override
-    public void setData(String[] data) {
-        this.commandData = data;
-    }
 }

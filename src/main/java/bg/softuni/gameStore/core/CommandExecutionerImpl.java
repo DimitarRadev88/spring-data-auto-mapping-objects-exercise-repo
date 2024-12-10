@@ -21,11 +21,11 @@ public class CommandExecutionerImpl implements CommandExecutioner {
     }
 
     @Override
-    public void execute(Command command) {
+    public String execute(Command command) {
         if (!this.commandsData.isEmpty()) {
             command.setData(this.commandsData.pop());
         }
 
-        command.execute();
+        return command.execute();
     }
 }

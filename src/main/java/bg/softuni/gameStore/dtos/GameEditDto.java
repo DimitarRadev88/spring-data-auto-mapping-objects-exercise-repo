@@ -1,10 +1,10 @@
 package bg.softuni.gameStore.dtos;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 
-public class GameAddDto {
+public class GameEditDto {
 
+    private Long id;
     private String title;
     private BigDecimal price;
     private Double size;
@@ -12,6 +12,17 @@ public class GameAddDto {
     private String thumbnailUrl;
     private String description;
     private String releaseDate;
+
+    public GameEditDto() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

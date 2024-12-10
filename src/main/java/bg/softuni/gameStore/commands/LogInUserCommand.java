@@ -7,11 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LogInUserCommand implements Command {
-    private static final String LOG_IN_MESSAGE = "Successfully logged in %s%n";
-
+public class LogInUserCommand extends CommandImpl {
+    private static final String LOG_IN_MESSAGE = "Successfully logged in %s";
     private final UserService userService;
-    private String[] commandData;
 
     @Autowired
     public LogInUserCommand(UserService userService) {
@@ -19,22 +17,14 @@ public class LogInUserCommand implements Command {
     }
 
     @Override
-    public void execute() {
+    public String execute() {
         UserLogInDto dto = new UserLogInDto();
 
-        dto.setEmail(commandData[0]);
-        dto.setPassword(commandData[1]);
+        dto.setEmail(getCommandData()[0]);
+        dto.setPassword(getCommandData()[1]);
 
-        try {
-            UserWithFullNameDto loggedIn = userService.logIn(dto);
-            System.out.printf(LOG_IN_MESSAGE, loggedIn.getFullName());
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
+        UserWithFullNameDto loggedIn = userService.logIn(dto);
+        return String.format(LOG_IN_MESSAGE, loggedIn.getFullName());
     }
 
-    @Override
-    public void setData(String[] data) {
-        this.commandData = data;
-    }
 }
